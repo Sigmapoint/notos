@@ -22,6 +22,7 @@ setup(
         'gcm-client>=0.1.3',
         'django-celery>=3.0.17',
         'Django>=1.5.1',
+        'django-json-field>=0.5.4',
     ],
 
     author = "Sigmapoint",
