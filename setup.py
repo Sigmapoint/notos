@@ -9,7 +9,7 @@ setup(
     name = "notos",
     version = "0.1",
     package_dir = {
-        'notos': 'src/notos',
+        '': 'src',
     },
     packages = [
         'notos',
