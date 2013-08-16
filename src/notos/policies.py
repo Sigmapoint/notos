@@ -47,7 +47,7 @@ class BasePushPolicy:
     def on_delete(self):
         return ({}, [], "delete")
     
-    def get_entity_id(self):
+    def get_entity_id(self, reg_id):
         try:
             obj = self.view.object
         except AttributeError:
@@ -76,7 +76,7 @@ class BasePushPolicy:
             entity_id = None
         return entity_id
     
-    def get_has_many(self):
+    def get_has_many(self, reg_id):
         try:
             obj = self.view.object
         except AttributeError:
@@ -92,29 +92,30 @@ class BasePushPolicy:
         else:
             return None
     
-    def get_obj(self):
+    def get_obj(self, reg_id):
         try:
             obj = self.view.object
         except AttributeError:
             obj = None
         return obj
     
-    def get_id(self):
+    def get_id(self, reg_id):
         obj = self.get_obj()
         if obj:
             return obj.id
         else:
             return None
     
-    def get_datetime(self):
+    def get_datetime(self, reg_id):
         return datetime.datetime.utcnow().replace(tzinfo=utc)
     
-    def finalize_data(self, data, date_time, action):
+    def finalize_data(self, data, date_time, action, reg_id):
         entity_id = self.get_entity_id()
         id = self.get_id() #@ReservedAssignment
         list = self.get_has_many() #@ReservedAssignment
         url = self.get_url()
-        data.update({
+        finalized = dict(data.items())
+        finalized.update({
             "_entity": entity_id,
             "_id": id,
             "_url": url,
@@ -122,8 +123,9 @@ class BasePushPolicy:
             "_list": list,
             "_action": action,
         })
+        return finalized
     
-    def get_url(self):
+    def get_url(self, reg_id):
         obj = self.get_obj()
         try:
             return obj.get_absolute_url()
@@ -137,13 +139,13 @@ class BasePushPolicy:
             suffix = self.request.method.lower()
             callback = getattr(self, 'on_' + suffix)
             data, registration_ids, action = callback()
-            date_time = self.get_datetime()
-            self.finalize_data(data, date_time, action)
             for reg_id in registration_ids:
+                date_time = self.get_datetime(reg_id)
+                finalized_data = self.finalize_data(data, date_time, action, reg_id)
                 ScheduledPush.objects.create(
                     self.__class__,
                     send_at=datetime.datetime.utcnow().replace(tzinfo=utc),
                     registration_id=reg_id,
-                    source=self.get_obj(),
-                    data=data
+                    source=self.get_obj(reg_id),
+                    data=finalized_data
                 )
