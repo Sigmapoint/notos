@@ -36,7 +36,8 @@ def push(policy, pk):
             safe_data[k] = v.isoformat()
         else:
             safe_data[k] = v
-    safe_data = sp.data.update({'_datetime': sp.data['_datetime'].isoformat()})
+    sp.data.update({'_datetime': sp.data['_datetime'].isoformat()})
+    safe_data.update(sp.data)
     message = JSONMessage([sp.registration_id], safe_data)
     try:
         results = gcm.send(message)
