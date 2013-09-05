@@ -100,7 +100,7 @@ class BasePushPolicy:
         return obj
     
     def get_id(self, reg_id):
-        obj = self.get_obj()
+        obj = self.get_obj(reg_id)
         if obj:
             return obj.id
         else:
@@ -126,7 +126,7 @@ class BasePushPolicy:
         return finalized
     
     def get_url(self, reg_id):
-        obj = self.get_obj()
+        obj = self.get_obj(reg_id)
         try:
             return obj.get_absolute_url()
         except AttributeError:
