@@ -110,10 +110,10 @@ class BasePushPolicy:
         return datetime.datetime.utcnow().replace(tzinfo=utc)
     
     def finalize_data(self, data, date_time, action, reg_id):
-        entity_id = self.get_entity_id()
-        id = self.get_id() #@ReservedAssignment
-        list = self.get_has_many() #@ReservedAssignment
-        url = self.get_url()
+        entity_id = self.get_entity_id(reg_id)
+        id = self.get_id(reg_id) #@ReservedAssignment
+        list = self.get_has_many(reg_id) #@ReservedAssignment
+        url = self.get_url(reg_id)
         finalized = dict(data.items())
         finalized.update({
             "_entity": entity_id,
